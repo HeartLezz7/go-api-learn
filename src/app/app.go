@@ -5,12 +5,13 @@ import (
 	"net/http"
 )
 
-func SayHello(w http.ResponseWriter, r *http.Request) {
-	method := r.Method
+func SayHello(response http.ResponseWriter, request *http.Request) {
+	method := request.Method
 	fmt.Println(method)
 	if method == "GET" {
 		fmt.Println("GET method")
-		w.WriteHeader(200)
+		response.WriteHeader(200)
+		response.Write([]byte("welcome to go world"))
 	}
 }
 
