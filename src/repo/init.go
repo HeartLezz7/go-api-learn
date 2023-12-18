@@ -3,14 +3,20 @@ package repo
 import (
 	"database/sql"
 	"fmt"
-	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func database() *sql.DB {
-	databaseString := "postgres://username:password@your-database-url:5432/your-database-name"
-	db, error := sql.Open("postgres", databaseString)
+func Database() *sql.DB {
+	databaseString := "root:123456@tcp(localhost:3306)/cc15_todo_list_v2"
+	db, error := sql.Open("mysql", databaseString)
 	if error != nil {
-		log.Fatal(error)
+		fmt.Println("SERVER ERROR", error.Error())
+	}
+	// defer db.Close()
+	error = db.Ping()
+	if error != nil {
+		fmt.Println("SERVER ERROR", error.Error())
 	}
 	fmt.Println("Connected to Database")
 	return db

@@ -6,5 +6,7 @@ import (
 )
 
 func UserRouter(server model.Server, PATH string) {
-	server.Engine.GET(PATH, controllers.GetUser)
+	userRouter := server.Engine.Group(PATH)
+
+	userRouter.GET("/getAll", controllers.GetAllUserId)
 }
