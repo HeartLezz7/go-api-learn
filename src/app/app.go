@@ -14,6 +14,7 @@ func main() {
 
 	r := model.Server{Engine: engine}
 	router.UserRouter(r, "/user")
+	router.TodoRouter(r, "todo")
 	fmt.Println("server run on port ", port)
 	r.Engine.Run(port)
 }
