@@ -9,10 +9,8 @@ import (
 
 func GetAllUserId(res *gin.Context) {
 	db := repo.Database()
-	getAll := "select id from user"
-	fmt.Println("BEFORE QUERY", db)
+	getAll := "select id from user ORDER BY id"
 	result, err := db.Query(getAll)
-	fmt.Println(result, "CHECK REUSLT")
 	if err != nil {
 		fmt.Println("ERROR", err.Error())
 		return
@@ -21,9 +19,7 @@ func GetAllUserId(res *gin.Context) {
 	ids := []int{}
 	for result.Next() {
 		var id int
-		fmt.Println(id, "BEFORE")
 		err := result.Scan(&id) // ส่ง แอดเดรสไปเช็ค
-		fmt.Println(id, "AFTER")
 		if err != nil {
 			panic(err)
 		}
@@ -32,6 +28,42 @@ func GetAllUserId(res *gin.Context) {
 	res.JSON(200, ids)
 }
 
-func CreateUser(res *gin.Context) {
-	res.JSON(201, nil)
+func CreateUser(c *gin.Context) {
+	// req := c.Request.Body
+	db := repo.Database()
+	var data struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}
+	errorRequest := c.BindJSON(&data)
+	fmt.Printf("data %+v\n", data)
+
+	if errorRequest != nil {
+		fmt.Printf("this is error %s\n", errorRequest)
+	}
+
+	create, _ := db.Prepare("INSERT INTO user (username, password, email) VALUES (?, ?, ?)")
+	result, createError := create.Exec(data.Username, data.Password, data.Email)
+	fmt.Println("This is result", result)
+
+	if createError != nil {
+		fmt.Println(createError)
+		c.JSON(500, createError)
+	}
+	defer create.Close()
+
+	num, _ := result.RowsAffected()
+	numLast, _ := result.LastInsertId()
+	fmt.Println(num, numLast)
+
+	c.JSON(201, data)
+}
+
+func UpdateUser(c *gin.Context) {
+	id := c.Params
+}
+
+func DeleteUser(c *gin.Context) {
+	id := c.Params
 }
