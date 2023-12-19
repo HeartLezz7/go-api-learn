@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"go-api/src/repo"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +30,6 @@ func GetAllUserId(res *gin.Context) {
 }
 
 func CreateUser(c *gin.Context) {
-	// req := c.Request.Body
 	db := repo.Database()
 	var data struct {
 		Username string `json:"username"`
@@ -60,10 +60,40 @@ func CreateUser(c *gin.Context) {
 	c.JSON(201, data)
 }
 
-func UpdateUser(c *gin.Context) {
-	id := c.Params
-	fmt.Printf("check params %+v\n", id[0].Value)
-	c.JSON(200, id)
+func UpdatePassword(c *gin.Context) {
+
+	db := repo.Database()
+
+	data := make(map[string]string)
+	error := c.BindJSON(&data)
+	fmt.Println(error)
+
+	params := c.Params
+	id := params[0].Value
+
+	key := make([]string, 0, 2)
+	value := make([]interface{}, 0, 2)
+	for k, v := range data {
+		key = append(key, k)
+		value = append(value, v)
+	}
+	value = append(value, id)
+
+	keyString := strings.Join(key, " = ?, ")
+
+	rawString := fmt.Sprintf("UPDATE user SET %s = ? WHERE id = ? ", keyString)
+
+	prepare, _ := db.Prepare(rawString)
+	defer prepare.Close()
+
+	result, updateError := prepare.Exec(value...)
+	fmt.Println(result)
+	fmt.Println("CHECK ERROR", updateError)
+	if updateError != nil {
+		c.JSON(500, updateError)
+	}
+
+	c.JSON(200, result)
 }
 
 func DeleteUser(c *gin.Context) {
