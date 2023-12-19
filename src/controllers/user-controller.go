@@ -62,8 +62,21 @@ func CreateUser(c *gin.Context) {
 
 func UpdateUser(c *gin.Context) {
 	id := c.Params
+	fmt.Printf("check params %+v\n", id[0].Value)
+	c.JSON(200, id)
 }
 
 func DeleteUser(c *gin.Context) {
-	id := c.Params
+	db := repo.Database()
+	params := c.Params
+	id := params[0].Value
+
+	prepare, _ := db.Prepare("DELETE FROM user where id = ? ")
+	result, deleteError := prepare.Exec(id)
+	if deleteError != nil {
+		fmt.Println(deleteError.Error())
+		c.JSON(500, deleteError)
+	}
+
+	c.JSON(200, result)
 }

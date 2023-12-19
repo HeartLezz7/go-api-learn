@@ -10,6 +10,8 @@ func UserRouter(server model.Server, PATH string) {
 
 	userRouter.GET("/getAll", controllers.GetAllUserId)
 	userRouter.POST("create", controllers.CreateUser)
+	userRouter.PATCH("/update/:id", controllers.UpdateUser)
+	userRouter.DELETE("/delete/:id", controllers.DeleteUser)
 }
 
 func TodoRouter(server model.Server, PATH string) {
