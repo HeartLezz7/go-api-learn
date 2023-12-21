@@ -1,17 +1,33 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
-	"go-api/src/repo"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetAllUserId(res *gin.Context) {
-	db := repo.Database()
+type UserController interface {
+	GetAllUserId(*gin.Context)
+	CreateUser(*gin.Context)
+	UpdatePassword(*gin.Context)
+	DeleteUser(*gin.Context)
+}
+
+type userController struct {
+	db *sql.DB
+}
+
+func NewUserController(db *sql.DB) UserController {
+	return userController{db: db}
+}
+
+func (u userController) GetAllUserId(res *gin.Context) {
+	// db := repo.Database()
+
 	getAll := "select id from user ORDER BY id"
-	result, err := db.Query(getAll)
+	result, err := u.db.Query(getAll)
 	if err != nil {
 		fmt.Println("ERROR", err.Error())
 		return
@@ -29,8 +45,8 @@ func GetAllUserId(res *gin.Context) {
 	res.JSON(200, ids)
 }
 
-func CreateUser(c *gin.Context) {
-	db := repo.Database()
+func (u userController) CreateUser(c *gin.Context) {
+	// db := repo.Database()
 	var data struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -43,7 +59,7 @@ func CreateUser(c *gin.Context) {
 		fmt.Printf("this is error %s\n", errorRequest)
 	}
 
-	create, _ := db.Prepare("INSERT INTO user (username, password, email) VALUES (?, ?, ?)")
+	create, _ := u.db.Prepare("INSERT INTO user (username, password, email) VALUES (?, ?, ?)")
 	result, createError := create.Exec(data.Username, data.Password, data.Email)
 	fmt.Println("This is result", result)
 
@@ -60,9 +76,9 @@ func CreateUser(c *gin.Context) {
 	c.JSON(201, data)
 }
 
-func UpdatePassword(c *gin.Context) {
+func (u userController) UpdatePassword(c *gin.Context) {
 
-	db := repo.Database()
+	// db := repo.Database()
 
 	data := make(map[string]string)
 	error := c.BindJSON(&data)
@@ -83,7 +99,7 @@ func UpdatePassword(c *gin.Context) {
 
 	rawString := fmt.Sprintf("UPDATE user SET %s = ? WHERE id = ? ", keyString)
 
-	prepare, _ := db.Prepare(rawString)
+	prepare, _ := u.db.Prepare(rawString)
 	defer prepare.Close()
 
 	result, updateError := prepare.Exec(value...)
@@ -96,12 +112,12 @@ func UpdatePassword(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func DeleteUser(c *gin.Context) {
-	db := repo.Database()
+func (u userController) DeleteUser(c *gin.Context) {
+	// db := repo.Database()
 	params := c.Params
 	id := params[0].Value
 
-	prepare, _ := db.Prepare("DELETE FROM user where id = ? ")
+	prepare, _ := u.db.Prepare("DELETE FROM user where id = ? ")
 	result, deleteError := prepare.Exec(id)
 	if deleteError != nil {
 		fmt.Println(deleteError.Error())
