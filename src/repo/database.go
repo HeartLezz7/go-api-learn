@@ -13,7 +13,6 @@ func Database() *sql.DB {
 	if error != nil {
 		fmt.Println("SERVER ERROR", error.Error())
 	}
-	// defer db.Close()
 	error = db.Ping()
 	if error != nil {
 		fmt.Println("SERVER ERROR", error.Error())

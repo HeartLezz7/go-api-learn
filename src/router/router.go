@@ -1,17 +1,19 @@
 package router
 
 import (
-	"go-api/src/controllers"
+	"go-api/src/controllers/todo_controller"
+	"go-api/src/controllers/user_controller"
 	"go-api/src/model"
 	"go-api/src/repo"
 )
 
 func UserRouter(server model.Server, PATH string) {
+
 	userRouter := server.Engine.Group(PATH)
 
 	db := repo.Database()
 
-	userController := controllers.NewUserController(db)
+	userController := user_controller.NewUserController(db)
 
 	userRouter.GET("/getAll", userController.GetAllUserId)
 	userRouter.POST("create", userController.CreateUser)
@@ -20,7 +22,12 @@ func UserRouter(server model.Server, PATH string) {
 }
 
 func TodoRouter(server model.Server, PATH string) {
+
 	todoRouter := server.Engine.Group(PATH)
 
-	todoRouter.GET("getList")
+	db := repo.Database()
+
+	todoController := todo_controller.NewTodoController(db)
+
+	todoRouter.GET("getList", todoController.GetAllTodos)
 }
