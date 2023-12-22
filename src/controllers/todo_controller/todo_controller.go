@@ -23,7 +23,7 @@ func (t todoController) GetAllTodos(c *gin.Context) {
 	data, error := t.db.Query("SELECT id,title,status,userId FROM todoList")
 
 	if error != nil {
-		c.JSON(500, "Invalid")
+		c.JSON(500, error)
 		return
 	}
 	defer data.Close()

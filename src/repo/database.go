@@ -3,12 +3,13 @@ package repo
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func Database() *sql.DB {
-	databaseString := "root:123456@tcp(localhost:3306)/cc15_todo_list_v2"
+	databaseString := os.Getenv("DATABASE")
 	db, error := sql.Open("mysql", databaseString)
 	if error != nil {
 		fmt.Println("SERVER ERROR", error.Error())
