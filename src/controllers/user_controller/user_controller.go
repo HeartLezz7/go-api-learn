@@ -11,7 +11,7 @@ import (
 type UserController interface {
 	GetAllUserId(*gin.Context)
 	CreateUser(*gin.Context)
-	UpdatePassword(*gin.Context)
+	UpdateUser(*gin.Context)
 	DeleteUser(*gin.Context)
 }
 
@@ -69,14 +69,10 @@ func (u userController) CreateUser(c *gin.Context) {
 	}
 	defer create.Close()
 
-	num, _ := result.RowsAffected()
-	numLast, _ := result.LastInsertId()
-	fmt.Println(num, numLast)
-
 	c.JSON(201, data)
 }
 
-func (u userController) UpdatePassword(c *gin.Context) {
+func (u userController) UpdateUser(c *gin.Context) {
 
 	// db := repo.Database()
 
@@ -88,7 +84,7 @@ func (u userController) UpdatePassword(c *gin.Context) {
 	id := params[0].Value
 
 	key := make([]string, 0, 2)
-	value := make([]interface{}, 0, 2)
+	value := make([]interface{}, 0, 4)
 	for k, v := range data {
 		key = append(key, k)
 		value = append(value, v)
@@ -102,14 +98,12 @@ func (u userController) UpdatePassword(c *gin.Context) {
 	prepare, _ := u.db.Prepare(rawString)
 	defer prepare.Close()
 
-	result, updateError := prepare.Exec(value...)
-	fmt.Println(result)
-	fmt.Println("CHECK ERROR", updateError)
+	_, updateError := prepare.Exec(value...)
 	if updateError != nil {
 		c.JSON(500, updateError)
 	}
 
-	c.JSON(200, result)
+	c.JSON(200, "UPDATE SUCCESS")
 }
 
 func (u userController) DeleteUser(c *gin.Context) {
@@ -118,11 +112,11 @@ func (u userController) DeleteUser(c *gin.Context) {
 	id := params[0].Value
 
 	prepare, _ := u.db.Prepare("DELETE FROM user where id = ? ")
-	result, deleteError := prepare.Exec(id)
+	_, deleteError := prepare.Exec(id)
 	if deleteError != nil {
 		fmt.Println(deleteError.Error())
 		c.JSON(500, deleteError)
 	}
 
-	c.JSON(200, result)
+	c.JSON(200, "DELETE SUCCESS")
 }

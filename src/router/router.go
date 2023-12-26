@@ -17,7 +17,7 @@ func UserRouter(server model.Server, PATH string) {
 
 	userRouter.GET("/getAll", userController.GetAllUserId)
 	userRouter.POST("create", userController.CreateUser)
-	userRouter.PATCH("/update/:id", userController.UpdatePassword)
+	userRouter.PATCH("/update/:id", userController.UpdateUser)
 	userRouter.DELETE("/delete/:id", userController.DeleteUser)
 }
 
